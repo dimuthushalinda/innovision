@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>INNOVISION 2026 — Vision Beyond Innovation</title>
+<style>
+  :root {
+    --void: #030812;
+    --violet: #1B64B7;
+    --cyan: #42E2B8;
+    --gold: #FFD700;
+    --body-text: #E8E8F0;
+    --muted: #666680;
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(27,100,183,0.18);
+    --glass: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--body-text);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── CANVAS ── */
+  #particle-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  section { position: relative; z-index: 1; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 3rem;
+    background: rgba(5,5,16,0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid var(--card-border);
+  }
+  .nav-logo {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--violet);
+    text-transform: uppercase;
+  }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+  }
+  .hero-title {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--violet) 70%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-logo {
+    max-width: 90%;
+    width: 600px;
+    height: auto;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 12px 30px rgba(27,100,183,0.3));
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+    100% { transform: translateY(0); }
+  }
+  .hero-year {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 900;
+    color: var(--violet);
+    -webkit-text-fill-color: unset;
+    text-shadow: 0 0 40px rgba(27,100,183,0.5);
+  }
+  .hero-typing {
+    font-size: 1.1rem;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    height: 1.8rem;
+  }
+  .hero-typing span {
+    color: var(--cyan);
+    font-weight: 600;
+    border-right: 2px solid var(--cyan);
+    padding-right: 4px;
+    animation: blink 0.8s step-end infinite;
+  }
+  @keyframes blink { 50% { border-color: transparent; } }
+
+  .circuit-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    height: 100%;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .circuit-left { left: 0; }
+  .circuit-right { right: 0; transform: scaleX(-1); }
+
+  /* countdown */
+  .countdown {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+  }
+  .cd-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    min-width: 80px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(27,100,183,0.1);
+  }
+  .cd-num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--violet);
+    display: block;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(27,100,183,0.6);
+  }
+  .cd-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    display: block;
+  }
+  .scroll-hint {
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    animation: bob 2s ease-in-out infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .scroll-hint::after {
+    content: '↓';
+    font-size: 1.2rem;
+    color: var(--violet);
+  }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+  /* ── SECTION BASE ── */
+  .section {
+    padding: 7rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-full {
+    padding: 7rem 2rem;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: #fff;
+  }
+  .section-title em {
+    font-style: normal;
+    color: var(--violet);
+  }
+
+  /* ── ABOUT (diagonal split) ── */
+  #about {
+    position: relative;
+    overflow: hidden;
+  }
+  #about::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M0 60L60 0M-10 10L10-10M50 70L70 50' stroke='%236C63FF' stroke-width='0.3' opacity='0.15'/%3E%3C/svg%3E") repeat;
+    z-index: 0;
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  @media(max-width:768px){ .about-grid{grid-template-columns:1fr; gap:3rem;} }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--violet);
+    display: block;
+    text-shadow: 0 0 20px rgba(27,100,183,0.5);
+  }
+  .stat-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.25rem;
+  }
+  .about-text p {
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    font-size: 1.05rem;
+  }
+  .highlight {
+    color: var(--cyan);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(66,226,184,0.3);
+  }
+
+  /* ── CATEGORIES (horizontal scroll) ── */
+  .cat-scroll-wrapper {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    -ms-overflow-style: none; scrollbar-width: none;
+  }
+  .cat-scroll-wrapper::-webkit-scrollbar { display: none; }
+  .cat-track {
+    display: flex;
+    gap: 1.5rem;
+    width: max-content;
+    padding: 0.5rem 0.25rem;
+  }
+  .cat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 2rem 1.75rem;
+    width: 280px;
+    flex-shrink: 0;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    cursor: default;
+  }
+  .cat-card:hover {
+    transform: perspective(600px) rotateY(-4deg) translateY(-4px);
+    border-color: var(--violet);
+    box-shadow: 0 12px 40px rgba(27,100,183,0.2);
+  }
+  .cat-num {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .cat-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.75rem;
+  }
+  .cat-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .cat-badge {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .badge-violet { background: rgba(27,100,183,0.15); color: var(--violet); border: 1px solid rgba(27,100,183,0.3); }
+  .badge-cyan   { background: rgba(66,226,184,0.1);  color: var(--cyan);   border: 1px solid rgba(66,226,184,0.25); }
+  .badge-gold   { background: rgba(255,215,0,0.1);  color: var(--gold);   border: 1px solid rgba(255,215,0,0.25); }
+  .badge-new    { background: rgba(66,226,184,0.15); color: var(--cyan);   border: 1px solid var(--cyan); }
+
+  /* ── JUDGING / TIMELINE ── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--violet), var(--cyan));
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 3rem;
+    padding-left: 2rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .tl-item.visible { opacity: 1; transform: none; }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -2.45rem;
+    top: 0.5rem;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--violet);
+    box-shadow: 0 0 10px var(--violet);
+  }
+  .tl-time {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 0.3rem;
+  }
+  .tl-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.4rem;
+  }
+  .tl-desc { font-size: 0.9rem; color: var(--muted); }
+
+  /* ── GRADING ── */
+  .grade-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .grade-card {
+    border-radius: 16px;
+    padding: 1.75rem;
+    border: 1px solid;
+    position: relative;
+    overflow: hidden;
+  }
+  .grade-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    opacity: 0.08;
+  }
+  .grade-distinction { border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.05); }
+  .grade-distinction::before { background: var(--gold); }
+  .grade-merit { border-color: rgba(27,100,183,0.4); background: rgba(27,100,183,0.05); }
+  .grade-merit::before { background: var(--violet); }
+  .grade-pass { border-color: rgba(66,226,184,0.3); background: rgba(66,226,184,0.05); }
+  .grade-pass::before { background: var(--cyan); }
+  .grade-part { border-color: rgba(102,102,128,0.3); background: rgba(102,102,128,0.05); }
+
+  .grade-range {
+    font-size: 1.8rem;
+    font-weight: 900;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  .grade-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.5rem;
+  }
+  .grade-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+  /* ── AWARDS ── */
+  .awards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  @media(max-width:600px){ .awards-grid{grid-template-columns:1fr; max-width:300px;} }
+
+  .award-card {
+    border-radius: 16px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    border: 1px solid;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .award-card:hover { transform: translateY(-6px); }
+
+  .award-gold   { border-color: rgba(255,215,0,0.5); background: rgba(255,215,0,0.06); box-shadow: 0 0 30px rgba(255,215,0,0.08); }
+  .award-silver { border-color: rgba(200,200,220,0.4); background: rgba(200,200,220,0.04); }
+  .award-bronze { border-color: rgba(205,127,50,0.4); background: rgba(205,127,50,0.05); }
+
+  .medal-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    line-height: 1;
+  }
+  .award-rank {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .award-rank-gold   { color: var(--gold); }
+  .award-rank-silver { color: #C0C0D8; }
+  .award-rank-bronze { color: #CD7F32; }
+  .award-desc { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+
+  /* ── FEATURE FLIP CARDS ── */
+  .flip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+  .flip-wrap {
+    perspective: 800px;
+    height: 180px;
+    cursor: pointer;
+  }
+  .flip-inner {
+    position: relative;
+    width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .flip-wrap:hover .flip-inner { transform: rotateY(180deg); }
+  .flip-front, .flip-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    text-align: center;
+    background: var(--card-bg);
+  }
+  .flip-back {
+    transform: rotateY(180deg);
+    background: rgba(27,100,183,0.08);
+    border-color: rgba(27,100,183,0.35);
+  }
+  .flip-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .flip-label { font-size: 0.9rem; font-weight: 600; color: #fff; }
+  .flip-benefit { font-size: 0.82rem; color: var(--body-text); line-height: 1.5; }
+
+  /* ── AGENDA ── */
+  .agenda-timeline {
+    position: relative;
+    max-width: 700px;
+    margin: 4rem auto 0;
+    padding-left: 2.5rem;
+  }
+  .agenda-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 6px; bottom: 0; width: 2px;
+    background: linear-gradient(to bottom, var(--violet), var(--cyan), transparent);
+  }
+  .agenda-item {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s;
+  }
+  .agenda-item::before {
+    content: '';
+    position: absolute;
+    top: 2.2rem; left: -2.5rem;
+    width: 14px; height: 14px;
+    background: var(--void);
+    border: 2px solid var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(66,226,184,0.6);
+    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+    z-index: 2;
+  }
+  .agenda-item:hover {
+    transform: translateX(10px);
+    box-shadow: 0 10px 30px rgba(27,100,183,0.15);
+    border-color: rgba(27,100,183,0.4);
+  }
+  .agenda-item:hover::before {
+    background: var(--cyan);
+    transform: scale(1.3);
+    box-shadow: 0 0 20px rgba(66,226,184,0.8);
+  }
+  .agenda-time {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+    background: rgba(66,226,184, 0.08);
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    border: 1px solid rgba(66,226,184, 0.2);
+  }
+  .agenda-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+  }
+
+  /* ── VENUE ── */
+  #venue-section {
+    background: linear-gradient(to bottom, transparent, rgba(27,100,183,0.04));
+  }
+  .venue-inner {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    min-height: 360px;
+    background: #0a0a1a;
+    display: flex;
+    align-items: stretch;
+  }
+  .venue-map-placeholder {
+    flex: 1;
+    background: linear-gradient(135deg, #0d0d20 0%, #0a1020 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+  }
+  .venue-map-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect x='0' y='0' width='40' height='40' fill='none' stroke='%236C63FF' stroke-width='0.3' opacity='0.2'/%3E%3C/svg%3E") repeat;
+  }
+  .map-pin {
+    position: relative; z-index: 1;
+    text-align: center;
+    color: var(--violet);
+  }
+  .map-pin svg { width: 48px; height: 48px; filter: drop-shadow(0 0 12px rgba(27,100,183,0.6)); }
+  .venue-card {
+    width: 320px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid var(--glass-border);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  @media(max-width:700px){
+    .venue-inner{flex-direction:column;}
+    .venue-card{width:100%;border-left:none;border-top:1px solid var(--glass-border);}
+    .venue-map-placeholder{min-height:200px;}
+  }
+  .venue-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .venue-name { font-size: 1.3rem; font-weight: 800; color: #fff; line-height: 1.2; }
+  .venue-detail { font-size: 0.875rem; color: var(--muted); display: flex; gap: 0.5rem; align-items: flex-start; }
+  .venue-detail strong { color: var(--body-text); }
+  .venue-btn {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    background: linear-gradient(135deg, var(--violet), #4D90DF);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: opacity 0.2s;
+  }
+  .venue-btn:hover { opacity: 0.85; }
+
+  /* ── INVITATION ── */
+  #invitation {
+    position: relative;
+    overflow: hidden;
+  }
+  #invitation::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(255,215,0,0.04), transparent 70%);
+    z-index: 0;
+  }
+  .invite-card-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    z-index: 1;
+  }
+  .invite-card {
+    max-width: 620px;
+    width: 100%;
+    border-radius: 24px;
+    border: 1px solid rgba(255,215,0,0.25);
+    background: linear-gradient(145deg, rgba(255,215,0,0.04), rgba(27,100,183,0.06));
+    backdrop-filter: blur(20px);
+    padding: 3.5rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .invite-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    border: 1px solid rgba(255,215,0,0.08);
+    pointer-events: none;
+  }
+  .seal {
+    width: 110px; height: 110px;
+    background: radial-gradient(circle, var(--gold), #B8860B);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 1.6rem;
+    box-shadow: 0 0 24px rgba(255,215,0,0.4);
+    animation: seal-stamp 0.6s cubic-bezier(.36,.07,.19,.97) both;
+    animation-play-state: paused;
+  }
+  .seal.stamped { animation-play-state: running; }
+  @keyframes seal-stamp {
+    0%   { transform: scale(2) rotate(-20deg); opacity:0; }
+    60%  { transform: scale(0.9) rotate(2deg); opacity:1; }
+    100% { transform: scale(1) rotate(0); opacity:1; }
+  }
+  .invite-headline {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,215,0,0.7);
+    margin-bottom: 1rem;
+  }
+  .invite-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+  .invite-body {
+    font-size: 0.95rem;
+    color: var(--muted);
+    max-width: 420px;
+    margin: 0 auto 2rem;
+    line-height: 1.7;
+  }
+  .invite-meta {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .invite-pill {
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pill-gold   { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+  .pill-violet { background: rgba(27,100,183,0.15); color: #6CA2E8; border: 1px solid rgba(27,100,183,0.3); }
+  .pill-cyan   { background: rgba(66,226,184,0.1); color: var(--cyan); border: 1px solid rgba(66,226,184,0.25); }
+  .invite-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-accept {
+    padding: 0.8rem 2rem;
+    background: linear-gradient(135deg, #B8860B, var(--gold));
+    color: #030812;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    letter-spacing: 0.03em;
+  }
+  .btn-accept:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-decline {
+    padding: 0.8rem 2rem;
+    background: transparent;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-decline:hover { border-color: rgba(255,255,255,0.3); color: var(--body-text); }
+  .rsvp-deadline {
+    margin-top: 2rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .rsvp-deadline strong { color: rgba(255,215,0,0.7); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 0.5px solid rgba(27,100,183,0.15);
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    background: rgba(5,5,16,0.8);
+  }
+  .footer-logo {
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: var(--violet);
+    margin-bottom: 0.5rem;
+  }
+  .footer-slogan {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+  .footer-org {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+  }
+  .footer-copy {
+    font-size: 0.75rem;
+    color: rgba(102,102,128,0.5);
+    margin-top: 1.5rem;
+  }
+  .social-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+  }
+  .social-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: var(--muted);
+  }
+  .social-icon:hover {
+    border-color: var(--violet);
+    box-shadow: 0 0 12px rgba(27,100,183,0.4);
+    color: var(--violet);
+  }
+
+  /* ── REVEAL ANIMATION ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ── CONFIRM OVERLAY ── */
+  .confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(5,5,16,0.92);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+  }
+  .confirm-overlay.show { display: flex; }
+  .confirm-box {
+    background: linear-gradient(145deg, rgba(255,215,0,0.06), rgba(27,100,183,0.08));
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 24px;
+    padding: 3rem;
+    text-align: center;
+    max-width: 440px;
+    width: 90%;
+  }
+  .confirm-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .confirm-title { font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.75rem; }
+  .confirm-body { font-size: 0.95rem; color: var(--muted); margin-bottom: 2rem; }
+  .confirm-close {
+    padding: 0.7rem 2rem;
+    background: rgba(27,100,183,0.2);
+    color: #6CA2E8;
+    border: 1px solid rgba(27,100,183,0.4);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  /* ── FULL RESPONSIVENESS ── */
+  .judging-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+    margin-top: 3rem;
+  }
+
+  @media(max-width: 1024px) {
+    .judging-grid { gap: 2rem; }
+    .section, .section-full { padding: 5rem 2rem; }
+  }
+
+  @media(max-width: 850px) {
+    .judging-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .agenda-timeline { margin-left: 1.5rem; }
+  }
+
+  @media(max-width: 768px) {
+    nav { padding: 1rem 1.5rem; flex-direction: column; gap: 1rem; }
+    .nav-links { gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    #hero { padding: 7rem 1.5rem 3rem; }
+    .countdown { gap: 0.75rem; }
+    .cd-card { padding: 0.75rem 1rem; min-width: 70px; }
+    .cd-num { font-size: 1.5rem; }
+    
+    .circuit-panel { opacity: 0.1; width: 150px; }
+    
+    .section, .section-full { padding: 4rem 1.5rem; }
+    .section-title { font-size: clamp(1.8rem, 6vw, 2.5rem); }
+    
+    .invite-card { padding: 2rem 1.5rem; }
+    .invite-title { font-size: 1.25rem; }
+    
+    .stat-grid { gap: 1rem; }
+    .stat-card { padding: 1rem; }
+    .stat-num { font-size: 2rem; }
+    
+    .flip-grid { grid-template-columns: 1fr; }
+    
+    footer { padding: 2rem 1.5rem; }
+  }
+
+  @media(max-width: 480px) {
+    .nav-links a { font-size: 0.75rem; }
+    .cd-card { min-width: 60px; padding: 0.5rem; }
+    .cd-num { font-size: 1.25rem; }
+    .cd-label { font-size: 0.55rem; }
+    
+    .circuit-panel { display: none; }
+    
+    .cat-track { gap: 1rem; }
+    .cat-card { width: 260px; padding: 1.5rem; }
+    
+    .venue-card { padding: 1.5rem; }
+    .confirm-box { padding: 2rem 1.5rem; }
+    .btn-accept, .btn-decline { width: 100%; }
+    .social-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero" style="position: relative; overflow: hidden;">
+  <svg class="circuit-panel circuit-left" viewBox="0 0 300 1000" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Circuit lines -->
+    <path d="M-50 200 L50 300 L50 450 L150 550 L150 800" stroke="var(--cyan)" stroke-width="2" stroke-linejoin="bevel" />
+    <circle cx="150" cy="800" r="5" fill="var(--cyan)" />
+    
+    <path d="M-50 400 L80 530 L80 700 L200 820 L200 950" stroke="var(--violet)" stroke-width="2.5" stroke-linejoin="bevel" />
+    <circle cx="200" cy="950" r="6" fill="var(--violet)" />
+
+    <path d="M-50 100 L120 270 L120 400 L250 530 L250 700" stroke="var(--cyan)" stroke-width="1.5" stroke-linejoin="bevel" opacity="0.6"/>
+    <circle cx="250" cy="700" r="4" fill="var(--cyan)" opacity="0.6"/>
+
+    <!-- Additional tech elements -->
+    <rect x="30" y="350" width="10" height="10" fill="var(--violet)" opacity="0.5" />
+    <rect x="130" y="600" width="14" height="14" fill="none" stroke="var(--cyan)" stroke-width="2" />
+    <path d="M220 450 L220 500 M200 475 L240 475" stroke="var(--cyan)" stroke-width="1" opacity="0.5"/>
+  </svg>
+  
+  <svg class="circuit-panel circuit-right" viewBox="0 0 300 1000" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Circuit lines -->
+    <path d="M-50 200 L50 300 L50 450 L150 550 L150 800" stroke="var(--cyan)" stroke-width="2" stroke-linejoin="bevel" />
+    <circle cx="150" cy="800" r="5" fill="var(--cyan)" />
+    
+    <path d="M-50 400 L80 530 L80 700 L200 820 L200 950" stroke="var(--violet)" stroke-width="2.5" stroke-linejoin="bevel" />
+    <circle cx="200" cy="950" r="6" fill="var(--violet)" />
+
+    <path d="M-50 100 L120 270 L120 400 L250 530 L250 700" stroke="var(--cyan)" stroke-width="1.5" stroke-linejoin="bevel" opacity="0.6"/>
+    <circle cx="250" cy="700" r="4" fill="var(--cyan)" opacity="0.6"/>
+
+    <!-- Additional tech elements -->
+    <rect x="30" y="350" width="10" height="10" fill="var(--violet)" opacity="0.5" />
+    <rect x="130" y="600" width="14" height="14" fill="none" stroke="var(--cyan)" stroke-width="2" />
+    <path d="M220 450 L220 500 M200 475 L240 475" stroke="var(--cyan)" stroke-width="1" opacity="0.5"/>
+  </svg>
+
+  <div style="position: relative; z-index: 2;">
+    <h2 class="hero-eyebrow">Department of Information Technology · ATI Galle· SLIATE</h2>
+    <img src="logo.png" alt="INNOVISION Logo" class="hero-logo">
+    <p class="hero-typing">Vision Beyond <span id="typing-word">Innovation</span></p>
+
+  <div class="countdown">
+    <div class="cd-card"><span class="cd-num" id="cd-days">--</span><span class="cd-label">Days</span></div>
+    <div class="cd-card"><span class="cd-num" id="cd-hrs">--</span><span class="cd-label">Hours</span></div>
+    <div class="cd-card"><span class="cd-num" id="cd-min">--</span><span class="cd-label">Minutes</span></div>
+    <div class="cd-card"><span class="cd-num" id="cd-sec">--</span><span class="cd-label">Seconds</span></div>
+</div>
+
+  <div class="scroll-hint">Scroll to explore</div>
+  </div>
+</section>
+
+<!-- ═══ INVITATION ═══ -->
+<section id="invitation" class="section-full">
+  <div class="section" style="padding-top:0;padding-bottom:0;">
+    <p class="section-label reveal" style="text-align:center;">Exclusive Access</p>
+    <h2 class="section-title reveal" style="text-align:center;">An invitation <em>reserved for you.</em></h2>
+
+    <div class="invite-card-wrap">
+      <div class="invite-card reveal">
+        <div class="seal" id="seal">  <div class="partner-logos" style="display: flex; justify-content: center; align-items: center; gap: 3rem; margin: 3rem 0; flex-wrap: wrap;">
+    <svg viewBox="0 0 110 130" xmlns="http://www.w3.org/2000/svg" style="height: 90px; width: auto;">
+      <g fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linejoin="miter">
+        <polygon points="40,15 15,55 40,95 65,55" />
+        <polygon points="70,15 45,55 70,95 95,55" />
+      </g>
+      <text x="55" y="122" font-family="'Times New Roman', serif" font-size="22" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">SLIATE</text>
+    </svg>
+  </div></div>
+        <p class="invite-headline">INNOVISION 2026 · ATI Galle · SLIATE</p>
+        <h3 class="invite-title">Dear <span id="guest-name" style="color: var(--gold);">Guest</span>,<br>You have been personally selected to join an exclusive gathering of visionaries, leaders, and innovators.</h3>
+        <p class="invite-body"><h5>The Department of Information Technology cordially invites you to witness — and be part of — a landmark celebration of student achievement, technical excellence, and forward thinking.</h5></br>
+
+        <div class="invite-meta">
+          <span class="invite-pill pill-gold">ATI Premises</span>
+          <span class="invite-pill pill-violet">at 9.00 a.m.</span>
+          <span class="invite-pill pill-cyan">INNOVISION 2026</span>
+        </div>
+
+
+        <div class="invite-actions">
+          <button class="btn-accept" onclick="acceptInvite()">Accept Invitation</button>
+        </div>
+
+        <p class="rsvp-deadline"><h3><span id="guest-name" style="color: var(--gold);">We look forward to the honour of your presence</span></h3></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="section-full">
+  <div class="section" style="padding-top:0;padding-bottom:0;">
+    <div class="about-grid">
+      <div class="stat-grid reveal">
+        <div class="stat-card">
+          <span class="stat-num" data-target="120">0</span>
+          <span class="stat-desc">Students</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" data-target="5">0</span>
+          <span class="stat-desc">Categories</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" data-target="15">0</span>
+          <span class="stat-desc">Medal Spots</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" data-target="1">0</span>
+          <span class="stat-desc">Vision</span>
+        </div>
+      </div>
+      <div class="about-text reveal">
+        <p class="section-label">About the Event</p>
+        <h2 class="section-title">A landmark moment for <em>HNDIT Galle.</em></h2>
+        <p>INNOVISION 2026 is the Department of Information Technology's annual <span class="highlight">Student Project Showcase & Innovation Exhibition</span> — a professionally evaluated platform where undergraduate students present their best work to peers, academic staff, and industry professionals.</p>
+        <p>Under the theme <span class="highlight">"Vision Beyond Innovation"</span>, this year's exhibition celebrates technical excellence across five competition categories — including the newly introduced AI-Based Website category, reflecting the department's forward-looking commitment to emerging technologies.</p>
+        <p>Hosted at <span class="highlight">Advanced Technology Institute, Galle</span>, and affiliated with SLIATE, INNOVISION 2026 is designed to be a repeatable annual standard and a permanent record of student innovation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CATEGORIES ═══ -->
+<section id="categories" class="section">
+  <p class="section-label reveal">Competition</p>
+  <h2 class="section-title reveal">Five categories. <em>One exhibition.</em></h2>
+  <p class="reveal" style="color:var(--muted);margin-bottom:2.5rem;max-width:560px;"><b>Each project is registered under exactly one category and evaluated by a dedicated panel of two to three judges.</b></p>
+
+  <div class="cat-scroll-wrapper reveal">
+    <div class="cat-track">
+
+      <div class="cat-card">
+        <p class="cat-num"><b></b>Category 01</p>
+        <p class="cat-name">Web-Based System</p>
+        <p class="cat-desc"><b>Full-stack web applications with backend logic, database integration, and authentication. Includes management systems, portals, and e-commerce platforms.</b></p>
+        <span class="cat-badge badge-violet">100 marks</span>
+      </div>
+
+      <div class="cat-card">
+        <p class="cat-num">Category 02</p>
+        <p class="cat-name">Mobile Application</p>
+        <p class="cat-desc"><b>Native or cross-platform mobile applications for Android or iOS. Evaluated on mobile UX, functionality, and performance across real devices.</b></p>
+        <span class="cat-badge badge-cyan">100 marks</span>
+      </div>
+
+      <div class="cat-card">
+        <p class="cat-num">Category 03</p>
+        <p class="cat-name">Desktop Application</p>
+        <p class="cat-desc"><b>Standalone software for Windows, macOS, or Linux. Judged on GUI design, stability, architecture, and distribution readiness.</b></p>
+        <span class="cat-badge badge-violet">100 marks</span>
+      </div>
+
+      <div class="cat-card">
+        <p class="cat-num">Category 04</p>
+        <p class="cat-name">Arduino Project</p>
+        <p class="cat-desc"><b>Hardware-software integrated projects using Arduino or compatible microcontrollers. Open to individual or group submissions — judged on circuit design, functionality, and code quality.</b></p>
+        <span class="cat-badge badge-gold">100 marks</span>
+      </div>
+
+      <div class="cat-card" style="border-color:rgba(66,226,184,0.35);box-shadow:0 0 30px rgba(66,226,184,0.08);">
+        <p class="cat-num">Category 05</p>
+        <p class="cat-name">AI-Based Website</p>
+        <p class="cat-desc"><b>Websites integrating Artificial Intelligence — chatbots, recommendation engines, NLP, image recognition, or predictive analytics. Evaluated on AI quality, design, and real-world utility.</b></p>
+        <span class="cat-badge badge-cyan">100 marks</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AGENDA ═══ -->
+<section id="agenda" class="section">
+  <p class="section-label reveal">Schedule</p>
+  <h2 class="section-title reveal">Event <em>Agenda.</em></h2>
+  <p class="reveal" style="color:var(--muted);margin-bottom:2.5rem;max-width:560px;"><b>A comprehensive timeline of the day's events, from the opening ceremonies to the final prize giving.</b></p>
+  
+  <div class="agenda-timeline reveal">
+    <div class="agenda-item">
+      <span class="agenda-time">9.00 AM</span>
+      <h3 class="agenda-title">Commencement of the Event </h3><br><h5>Official start of INNOVISION 2026</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">9.10 AM</span>
+      <h3 class="agenda-title">Lighting of the Oil Lamp</h3><br><h5>Ceremonial inauguration</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">9.20 AM</span>
+      <h3 class="agenda-title">Welcome Speech</h3><br><h5>Opening address by the Student</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">9.30 AM</span>
+      <h3 class="agenda-title">The Director's Speech (Mr. J.K.D.C.R.Jayaneththi)</h3><br><h5>Address by the Director, ATI Labuduwa</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">9.45 AM</span>
+      <h3 class="agenda-title">Project Showcase</h3><br><h5>Student project exhibition & judging commences</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">10.30 AM</span>
+      <h3 class="agenda-title">Speech by Guest (Mr. S.A.C Buddhika - Rightmo web solution)</h3><br><h5>Official start of INNOVISION 2026</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">10.45 AM</span>
+      <h3 class="agenda-title">Refreshments</h3><br><h5>Official start of INNOVISION 2026</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">11.15 AM</span>
+      <h3 class="agenda-title">Speech by Guest (Mr. Kosala Indrasiri - Sanmark solution)</h3><br><h5>Official start of INNOVISION 2026</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">11.40 AM</span>
+      <h3 class="agenda-title">Judging & Marking</h3><br><h5>Official start of INNOVISION 2026</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">12.00 PM</span>
+      <h3 class="agenda-title">Speech by Head of Department (Mrs. K.K.J.Chandima)</h3><br><h5>Official start of INNOVISION 2026</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">12.15 PM</span>
+      <h3 class="agenda-title">Prize Giving Ceremony</h3><br><h5>Official start of INNOVISION 2026</h5>
+    </div>
+    <div class="agenda-item">
+      <span class="agenda-time">12.45 PM</span>
+      <h3 class="agenda-title">Vote of Thanks</h3><br><h5>Official start of INNOVISION 2026</h5>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ JUDGING / MARKING ═══ -->
+<section id="judging" class="section">
+  <p class="section-label reveal">Evaluation</p>
+  <h2 class="section-title reveal">Judging process</h2>
+
+  <div class="judging-grid reveal">
+
+    <div class="timeline">
+      <div class="tl-item">
+        <p class="tl-time">Step 01</p>
+        <p class="tl-title">Booth assignment & registration</p>
+        <p class="tl-desc"><b>Each team is allocated a designated exhibition booth or demonstration station on event day.</b></p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-time">Step 02</p>
+        <p class="tl-title">10-minute presentation window</p>
+        <p class="tl-desc"><b>Participants demonstrate their project and answer judge questions within a strict 10-minute slot.</b></p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-time">Step 03</p>
+        <p class="tl-title">Private mark sheet submission</p>
+        <p class="tl-desc"><b>Judges score independently using the official 100-mark rubric and submit sealed sheets to the Chief Coordinator.</b></p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-time">Step 04</p>
+        <p class="tl-title">Score aggregation & verification</p>
+        <p class="tl-desc"><b>The Event Committee tallies and verifies all scores before any placements are announced.</b></p>
+      </div>
+      <div class="tl-item">
+        <p class="tl-time">Step 05</p>
+        <p class="tl-title">Tie-break & awards ceremony</p>
+        <p class="tl-desc"><b>In the event of a tied placement, judges convene for a final collective decision. Medals and certificates are awarded</b>.</p>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="color:#fff;font-size:1.05rem;font-weight:700;margin-bottom:1.25rem;">Panel composition</h3>
+      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:2rem;line-height:1.7;"><b>Every category is evaluated by <strong style="color:var(--body-text);">two to three judges</strong> — at least one senior academic staff member from the Department of IT, and where possible an industry professional or alumni guest to bring real-world evaluation standards. Judges have no prior access to projects they evaluate.</b></p>
+
+
+  </div>
+</section>
+
+<!-- ═══ GRADING ═══ -->
+<section id="grading" class="section">
+  <p class="section-label reveal">Certificates</p>
+  <h2 class="section-title reveal">Every participant receives <em>recognition.</em></h2>
+  <p class="reveal" style="color:var(--muted);margin-bottom:2.5rem;max-width:560px;"><b>All participants receive an official certificate from the Department of Information Technology, SLIATE Galle — graded on total marks from the judging panel.</b></p>
+
+  <div class="grade-grid reveal">
+    <div class="grade-card grade-distinction">
+      <span class="grade-range" style="color:var(--gold);">1ST</span>
+      <p class="grade-name" style="color:var(--gold);">PLACE</p>
+      <p class="grade-desc"><b>Outstanding. Exceptional creativity, technical depth, and professional finish. Exceeds all judging criteria. Eligible for placement awards.</b></p>
+    </div>
+    <div class="grade-card grade-merit">
+      <span class="grade-range" style="color:var(--violet);">2ND</span>
+      <p class="grade-name" style="color:#6CA2E8;">PLACE</p>
+      <p class="grade-desc"><b>Commendable. Meets and frequently exceeds expectations with strong technical competence and minor areas for growth.</b></p>
+    </div>
+    <div class="grade-card grade-pass">
+      <span class="grade-range" style="color:var(--cyan);">3RD</span>
+      <p class="grade-name" style="color:var(--cyan);">PLACE</p>
+      <p class="grade-desc"><b>Satisfactory. Fulfils core project requirements with acceptable quality. Improvement expected after feedback.</b></p>
+    </div>
+    <div class="grade-card grade-part">
+      <span class="grade-range" style="color:var(--muted);">PARTICIPATION</span>
+      <p class="grade-name" style="color:var(--muted);">PLACE</p>
+      <p class="grade-desc"><b>Certificate of Participation issued with an encouragement note. Significant improvements required for future editions.</b></p>
+    </div>
+  </div>
+
+  <p class="reveal" style="color:var(--muted);font-size:0.82rem;margin-top:1.5rem;"><b>All certificates are signed by the Director and the Head of Department , and include participant name, project title, category, and grade or placement.</b></p>
+</section>
+
+<!-- ═══ AWARDS ═══ -->
+<section id="awards" class="section">
+  <p class="section-label reveal">Prizes</p>
+  <h2 class="section-title reveal" style="text-align:center;">Top three per category. <em>Across all five.</em></h2>
+  <p class="reveal" style="color:var(--muted);text-align:center;margin-bottom:3rem;">15 medals total — one champion, one runner-up, one merit award per competition category.</p>
+
+  <div class="awards-grid">
+    <div class="award-card award-silver reveal" style="margin-top:2rem;">
+      <svg viewBox="0 0 100 100" style="width: 80px; height: 80px; display: inline-block; margin-bottom: 1.25rem; filter: drop-shadow(0 8px 16px rgba(192,192,216,0.15));" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="silver" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#E8E8F0" /><stop offset="50%" stop-color="#C0C0D8" /><stop offset="100%" stop-color="#808090" /></linearGradient><linearGradient id="silverIn" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#9090A0" /><stop offset="100%" stop-color="#F8F8FF" /></linearGradient><linearGradient id="ribbonS" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B64B7" /><stop offset="100%" stop-color="#0D2E55" /></linearGradient></defs><path d="M 35 0 L 45 35 L 50 30 L 55 35 L 65 0 L 50 18 Z" fill="url(#ribbonS)"/><path d="M 35 0 L 50 18 L 45 35 Z" fill="#13447D"/><circle cx="50" cy="55" r="32" fill="url(#silver)"/><circle cx="50" cy="55" r="26" fill="url(#silverIn)"/><circle cx="50" cy="55" r="22" fill="url(#silver)"/><text x="50" y="66" font-family="'Inter', sans-serif" font-size="30" font-weight="900" fill="#FFF" text-anchor="middle" style="text-shadow: 0 2px 4px rgba(0,0,0,0.4);">2</text></svg>
+      <p class="award-rank award-rank-silver">2nd Place</p>
+      <p style="font-size:1rem;font-weight:700;color:#C0C0D8;">Silver</p>
+      <p class="award-desc"><b>Medal + Silver Placement Certificate</b></p>
+    </div>
+    <div class="award-card award-gold reveal">
+      <svg viewBox="0 0 100 100" style="width: 96px; height: 96px; display: inline-block; margin-bottom: 1.25rem; filter: drop-shadow(0 12px 24px rgba(255,215,0,0.25));" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE55C" /><stop offset="50%" stop-color="#FFD700" /><stop offset="100%" stop-color="#B8860B" /></linearGradient><linearGradient id="goldIn" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#DAA520" /><stop offset="100%" stop-color="#FFF8DC" /></linearGradient><linearGradient id="ribbonG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B64B7" /><stop offset="100%" stop-color="#0D2E55" /></linearGradient></defs><path d="M 35 0 L 45 35 L 50 30 L 55 35 L 65 0 L 50 18 Z" fill="url(#ribbonG)"/><path d="M 35 0 L 50 18 L 45 35 Z" fill="#13447D"/><circle cx="50" cy="55" r="32" fill="url(#gold)"/><circle cx="50" cy="55" r="26" fill="url(#goldIn)"/><circle cx="50" cy="55" r="22" fill="url(#gold)"/><text x="50" y="66" font-family="'Inter', sans-serif" font-size="30" font-weight="900" fill="#FFF" text-anchor="middle" style="text-shadow: 0 2px 4px rgba(0,0,0,0.4);">1</text></svg>
+      <p class="award-rank award-rank-gold">1st Place</p>
+      <p style="font-size:1rem;font-weight:700;color:var(--gold);">Gold</p>
+      <p class="award-desc"><b>Gold Medal + Gold Placement Certificate</b></p>
+    </div>
+    <div class="award-card award-bronze reveal" style="margin-top:2rem;">
+      <svg viewBox="0 0 100 100" style="width: 80px; height: 80px; display: inline-block; margin-bottom: 1.25rem; filter: drop-shadow(0 8px 16px rgba(205,127,50,0.15));" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bronze" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFA07A" /><stop offset="50%" stop-color="#CD7F32" /><stop offset="100%" stop-color="#8B4513" /></linearGradient><linearGradient id="bronzeIn" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#A0522D" /><stop offset="100%" stop-color="#FFDAB9" /></linearGradient><linearGradient id="ribbonB" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1B64B7" /><stop offset="100%" stop-color="#0D2E55" /></linearGradient></defs><path d="M 35 0 L 45 35 L 50 30 L 55 35 L 65 0 L 50 18 Z" fill="url(#ribbonB)"/><path d="M 35 0 L 50 18 L 45 35 Z" fill="#13447D"/><circle cx="50" cy="55" r="32" fill="url(#bronze)"/><circle cx="50" cy="55" r="26" fill="url(#bronzeIn)"/><circle cx="50" cy="55" r="22" fill="url(#bronze)"/><text x="50" y="66" font-family="'Inter', sans-serif" font-size="30" font-weight="900" fill="#FFF" text-anchor="middle" style="text-shadow: 0 2px 4px rgba(0,0,0,0.4);">3</text></svg>
+      <p class="award-rank award-rank-bronze">3rd Place</p>
+      <p style="font-size:1rem;font-weight:700;color:#CD7F32;">Bronze</p>
+      <p class="award-desc"><b>Bronze Medal + Bronze Placement Certificate</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VENUE ═══ -->
+<section id="venue" class="section-full" id="venue-section">
+  <div class="section" style="padding-top:0;padding-bottom:0;">
+    <p class="section-label reveal">Location</p>
+    <h2 class="section-title reveal">Where it <em>all happens.</em></h2>
+
+    <div class="venue-inner reveal" style="margin-top:2rem;">
+      <div class="venue-map-placeholder">
+        <div class="map-pin">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="20" r="10" fill="#1B64B7" opacity="0.3"/>
+            <circle cx="24" cy="20" r="5" fill="#1B64B7"/>
+            <path d="M24 30 C24 30 10 40 10 22 C10 14.27 16.27 8 24 8 C31.73 8 38 14.27 38 22 C38 40 24 30 24 30Z" fill="#1B64B7" opacity="0.25"/>
+          </svg>
+          <p style="font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;margin-top:0.75rem;color:rgba(27,100,183,0.7);">Advance Technologival Institute Galle</p>
+        </div>
+      </div>
+      <div class="venue-card">
+        <span class="venue-tag">Event Venue</span>
+        <p class="venue-name">Advanced Technology Institute<br>Galle</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div class="venue-detail"><strong>Venue:</strong>&nbsp;ATI PREMISES</div>
+          <div class="venue-detail"><strong>Institute:</strong>&nbsp;ATI Galle SLIATE</div>
+          <div class="venue-detail"><strong>Department:</strong>&nbsp;Department of Information Technology</div>
+          <div class="venue-detail"><strong>Event:</strong>&nbsp;INNOVISION 2026 — Student Project Showcase & Innovation Exhibition</div>
+        </div>
+        <a href="https://maps.google.com/?q=Advanced+Technology+Institute+Labuduwa+Sri+Lanka" class="venue-btn" target="_blank" rel="noopener">Get Directions →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <img src="logo1.png" alt="INNOVISION 2026" style="height: 60px; width: auto; margin-bottom: 0.5rem; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));">
+
+  <p class="footer-org"><b>Department of Information Technology · Advanced Technology Institute (ATI), Galle</b></p>
+  <p class="footer-org"><b>Sri Lanka Institute of Advanced Technological Education (SLIATE)</b></p>
+  <p class="footer-copy">© 2026 INNOVISION — All rights reserved.</p>
+</footer>
+
+<!-- CONFIRMATION OVERLAY -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"></div>
+    <p class="confirm-title"><h3>You're confirmed!</h3></p>
+    <p class="confirm-body"><b>Thank you for accepting your invitation to INNOVISION 2026.</b></p>
+    <button class="confirm-close" onclick="closeConfirm()">Done</button>
+  </div>
+</div>
+
+<script>
+/* ── PARTICLE CANVAS ── */
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, stars = [], mouse = {x:0,y:0};
+
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();
+window.addEventListener('resize',resize);
+
+for(let i=0;i<160;i++){
+  stars.push({
+    x:Math.random()*5000,y:Math.random()*4000,
+    r:Math.random()*1.2+0.3,
+    vx:(Math.random()-0.5)*0.15,vy:(Math.random()-0.5)*0.08,
+    a:Math.random()
+  });
+}
+
+window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+
+function drawStars(){
+  ctx.clearRect(0,0,W,H);
+  const sx=window.scrollX,sy=window.scrollY;
+  const mx=(mouse.x-W/2)*0.02,my=(mouse.y-H/2)*0.02;
+  stars.forEach(s=>{
+    s.x+=s.vx;s.y+=s.vy;
+    if(s.x<0)s.x=5000;if(s.x>5000)s.x=0;
+    if(s.y<0)s.y=4000;if(s.y>4000)s.y=0;
+    const px=(s.x%W)+mx, py=(s.y%H)+my+sy%H;
+    ctx.beginPath();
+    ctx.arc(px,py,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${s.r>1?'66,226,184':'27,100,183'},${s.a*0.6})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* ── TYPING ANIMATION ── */
+const words=['Innovation','the Future','the Spark','the Shift'];
+let wi=0,ci=0,del=false;
+const el=document.getElementById('typing-word');
+
+function typeLoop(){
+  const w=words[wi];
+  if(!del){
+    el.textContent=w.slice(0,++ci);
+    if(ci===w.length){del=true;setTimeout(typeLoop,1800);return;}
+  } else {
+    el.textContent=w.slice(0,--ci);
+    if(ci===0){del=false;wi=(wi+1)%words.length;setTimeout(typeLoop,400);return;}
+  }
+  setTimeout(typeLoop,del?60:90);
+}
+typeLoop();
+
+/* ── COUNTDOWN ── */
+// Event date: September 2026 (placeholder — update with actual date)
+const EVENT = new Date('2026-07-21T09:00:00');
+function tick(){
+  const diff=EVENT-Date.now();
+  if(diff<=0){
+    ['cd-days','cd-hrs','cd-min','cd-sec'].forEach(id=>document.getElementById(id).textContent='00');
+    return;
+  }
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor((diff%86400000)/3600000);
+  const m=Math.floor((diff%3600000)/60000);
+  const s=Math.floor((diff%60000)/1000);
+  document.getElementById('cd-days').textContent=String(d).padStart(2,'0');
+  document.getElementById('cd-hrs').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-min').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-sec').textContent=String(s).padStart(2,'0');
+  setTimeout(tick,1000);
+}
+tick();
+
+/* ── INTERSECTION OBSERVER ── */
+const revealObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target);}
+  });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+const tlObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('visible');tlObs.unobserve(e.target);}
+  });
+},{threshold:0.2});
+document.querySelectorAll('.tl-item').forEach(el=>tlObs.observe(el));
+
+/* ── COUNT-UP STATS ── */
+const statObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const el=e.target;
+      const target=parseInt(el.dataset.target);
+      let cur=0;
+      const step=target/40;
+      const timer=setInterval(()=>{
+        cur=Math.min(cur+step,target);
+        el.textContent=(cur>=target)?target+'+':Math.floor(cur)+'+';
+        if(cur>=target)clearInterval(timer);
+      },30);
+      statObs.unobserve(el);
+    }
+  });
+},{threshold:0.5});
+document.querySelectorAll('.stat-num').forEach(el=>statObs.observe(el));
+
+/* ── SEAL ANIMATION ── */
+const sealObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('stamped');sealObs.unobserve(e.target);}
+  });
+},{threshold:0.5});
+const sealEl=document.getElementById('seal');
+if(sealEl)sealObs.observe(sealEl);
+
+/* ── INVITE ACTIONS ── */
+function acceptInvite(){
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+function closeConfirm(){
+  document.getElementById('confirm-overlay').classList.remove('show');
+}
+
+/* ── GUEST LOGIC ── */
+const urlParams = new URLSearchParams(window.location.search);
+const guestName = urlParams.get('guest');
+const inviteSection = document.getElementById('invitation');
+
+if (guestName) {
+  document.getElementById('guest-name').textContent = guestName;
+} else {
+  // If no guest name is provided, default to 'Special Guest'.
+  // If you want to HIDE the invitation entirely from normal users, 
+  // uncomment the line below:
+  // inviteSection.style.display = 'none';
+  document.getElementById('guest-name').textContent = 'Special Guest';
+}
+</script>
+</body>
+</html>
