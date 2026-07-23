@@ -121,5 +121,7 @@ This project was built for the exclusive use of the **Department of Information 
 ---
 
 <p align="center">
-  Made with 💜 for INNOVISION 2026 — ATI Labuduwa
+  Made with for INNOVISION 2026 — ATI Labuduwa
+  Copyright © 2026 **Dimuthu Shalinda**. All rights reserved.
+
 </p>
